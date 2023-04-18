@@ -1,13 +1,13 @@
 const express = require('express')
 const app = express()
 const port = 3000
-const { Client } = require('pg')
+const { Pool } = require('pg')
 const bodyParser = require('body-parser')
 
 // Configurar body-parser para analizar los datos del formulario
 app.use(bodyParser.urlencoded({ extended: true }))
 
-const client = new Client ({
+const pool = new Pool ({
     user: 'admin',
     host: 'dpg-cgumnpt39el96k2238qg-a.oregon-postgres.render.com',
     database: 'tdswii',
@@ -33,18 +33,20 @@ app.post('/registro', async (req, res) => {
     const contraseña = req.body.contraseña
   
     try {
-      await client.connect()
+      await pool.connect()
       const query = 'INSERT INTO usuario (nombre, apellido, correo, password) VALUES ($1, $2, $3, $4)'
       const values = [nombre, apellido, correo, contraseña]
-      await client.query(query, values)
+      await pool.query(query, values)
       console.log('Datos de usuario guardados en la base de datos.')
       res.send('Registro exitoso.')
     } catch (error) {
       console.error(error)
       res.send('Error al registrar usuario.')
     } finally {
-      await client.end()
+      await pool.end()
     }
   })
+
+  
 
 
