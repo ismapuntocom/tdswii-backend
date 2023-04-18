@@ -2,6 +2,10 @@ const express = require('express')
 const app = express()
 const port = 3000
 const { Client } = require('pg')
+const bodyParser = require('body-parser')
+
+// Configurar body-parser para analizar los datos del formulario
+app.use(bodyParser.urlencoded({ extended: true }))
 
 const client = new Client ({
     user: 'admin',
@@ -19,15 +23,28 @@ app.listen(port, () => {
 
 app.get('/', async (req,res) => {
 
-    await client.connect((err) => {
-        if (err) {
-            console.error("AAAAAAAAAAAAA", err.stack)
-        } else {
-            console.log("pog")
-        }
-    })
-
-    const queryRes = await client.query("SELECT * FROM usuario")
-    console.log(queryRes.rows)
+    res.sendFile(__dirname + "/registro/registro.html")
 })
+
+app.post('/registro', async (req, res) => {
+    const nombre = req.body.nombre
+    const apellido = req.body.apellido
+    const correo = req.body.email
+    const contraseña = req.body.contraseña
+  
+    try {
+      await client.connect()
+      const query = 'INSERT INTO usuario (nombre, apellido, correo, password) VALUES ($1, $2, $3, $4)'
+      const values = [nombre, apellido, correo, contraseña]
+      await client.query(query, values)
+      console.log('Datos de usuario guardados en la base de datos.')
+      res.send('Registro exitoso.')
+    } catch (error) {
+      console.error(error)
+      res.send('Error al registrar usuario.')
+    } finally {
+      await client.end()
+    }
+  })
+
 
