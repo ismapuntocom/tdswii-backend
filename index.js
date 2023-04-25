@@ -1,12 +1,16 @@
 const express = require('express')
 const app = express()
-const port = 3000
 const { Pool } = require('pg')
+const dotenv = require('dotenv')
 const bodyParser = require('body-parser')
+
+dotenv.config()
+
+const PORT = process.env.PORT || 5000
 
 // Configurar body-parser para analizar los datos del formulario
 app.use(bodyParser.urlencoded({ extended: true }))
-
+/*
 const pool = new Pool ({
     user: 'admin',
     host: 'dpg-cgumnpt39el96k2238qg-a.oregon-postgres.render.com',
@@ -15,7 +19,7 @@ const pool = new Pool ({
     port: '5432',
     ssl: true
 })
-
+*/
 
 app.listen(port, () => {
     console.log(`Example app linstening at http://localhost:${port}`)
@@ -47,6 +51,13 @@ app.post('/registro', async (req, res) => {
     }
   })
 
-  
+  app.get('/test', async (req, res) => {
+    await pool.connect()
+    const queryRes = await pool.query("SELECT * FROM usuario")
+    console.log(queryRes.rows)
+    res.send(queryRes.rows)
+  })
+
+
 
 
