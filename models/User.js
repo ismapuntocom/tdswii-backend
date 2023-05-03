@@ -1,6 +1,9 @@
 const { DataTypes } = require('sequelize')
 const sequelize = require('../db')
 
+
+// Se crea un objeto "User", cuyas propiedades se corresponden con las de la tabla "usuario" de la DB
+
 const User = sequelize.define('User', {
     correo: {
         type: DataTypes.STRING(100),

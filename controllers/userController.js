@@ -1,6 +1,9 @@
-const { useIsRTL } = require("react-bootstrap/esm/ThemeProvider")
 const User = require("../models/User")
 const jwt = require("jsonwebtoken")
+const dotenv = require("dotenv")
+const transporter = require("../utils/email")
+
+dotenv.config()
 
 
 async function registerUser (req, res) {
@@ -49,7 +52,6 @@ async function loginUser (req, res) {
 
 async function resetUserPasswordRequest(req, res) {
     const { email } = req.body
-
     try {
         const user = await User.findByPk(email)
 
@@ -59,16 +61,16 @@ async function resetUserPasswordRequest(req, res) {
 
         const token = jwt.sign(
             { id: user.correo }, 
-            process.env.JWT_SECRET,
-            { expiresIN: "1h" }
+            `${process.env.JWT_SECRET}`,
+            { expiresIn: "1h" }
         )
 
         const resetUrl = `http://localhost:3000/reset-password/${token}`
         const mailOptions = {
-            from: "your_email@example.com",
+            from: "canorecords00@gmail.com",
             to: email,
             subject: "Recuperación de Contraseña",
-            text: "Haz click en el siguiente link para obtener una nueva contraseña"
+            text: `Haz click en el siguiente link para obtener una nueva contraseña: ${resetUrl}`
         }
 
         await transporter.sendMail(mailOptions)
@@ -84,12 +86,11 @@ async function resetUserPasswordRequest(req, res) {
 async function resetUserPasswordResponse(req, res) {
     const { token } = req.params
     const { newPassword } = req.body
-
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const decoded = jwt.verify(token, `${process.env.JWT_SECRET}`)
         const userMail = decoded.id
 
-        const user = await UserfindByPk(userMail)
+        const user = await User.findByPk(userMail)
 
         if(user === null) {
             return res.status(404).json({ message: "User not found" })

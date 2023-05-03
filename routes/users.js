@@ -4,7 +4,8 @@ const userController = require("../controllers/userController")
 
 router.post("/register", userController.registerUser)
 router.post("/login", userController.loginUser)
-router.post("/reset-password", userController.resetUserPassword)
+router.post("/password-recovery", userController.resetUserPasswordRequest)
+router.post("/reset-password/:token", userController.resetUserPasswordResponse)
 /* router.get("/recovery", recoveryController) */
 
 module.exports = router
