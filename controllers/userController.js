@@ -5,7 +5,6 @@ const transporter = require("../utils/email")
 
 dotenv.config()
 
-
 async function registerUser (req, res) {
     try {
         const { correo, password } = req.body
@@ -34,9 +33,16 @@ async function loginUser (req, res) {
             }})
         
             if( user === null ) {
-                res.status(201).json({message: "Not found"})
-            } else {
-                res.status(201).json({message: "Success"})
+                res.status(401).json({message: "Email or password incorrect"})
+            } else 
+            {
+                const token = jwt.sign(
+                    {id: user.correo}, 
+                    `${process.env.JWT_SECRET}`, 
+                    { expiresIn: "3h" }
+                )
+                
+                res.json({ token })
             }
     } 
     catch (error) {

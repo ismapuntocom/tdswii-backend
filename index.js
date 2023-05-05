@@ -16,7 +16,3 @@ app.use("/users", usersRoutes)
 app.listen(PORT, () => {
     console.log(`Example app listening at http://localhost:${PORT}`)
 })
-
-app.get("/", async (req,res) => {
-    res.sendFile(__dirname + "/registro/registro.html")
-})
