@@ -41,6 +41,10 @@ const User = sequelize.define('User', {
     password: {
         type: DataTypes.STRING(60),
         allowNull: false
+    },
+    firstLogin: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
     }
 }, { 
     // Trabaja en la tabla "usuario"

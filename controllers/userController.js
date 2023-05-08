@@ -120,9 +120,32 @@ async function resetUserPasswordResponse(req, res) {
     }
 }
 
+async function getUserProfile (req, res) { 
+    const { userId } = req.params
+    // TODO: Create "USERNAME" field on User model
+    // and return it to the frontend to be used as a route parameter
+    try {
+        const user = await User.findByPk(userId)
+
+        if (user === null) {
+            return res.status(404).json({ message: "User not found" })
+        }
+
+        res.json({
+            email: user.correo,
+            name: user.name,
+        })
+
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: "Server error" })
+    }
+ }
+
 module.exports = {
     registerUser,
     loginUser,
     resetUserPasswordRequest,
     resetUserPasswordResponse,
+    getUserProfile,
 }
