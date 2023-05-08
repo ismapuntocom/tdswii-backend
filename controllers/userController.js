@@ -7,12 +7,24 @@ dotenv.config()
 
 async function registerUser (req, res) {
     try {
-        const { correo, password } = req.body
-        const newUser = await User.create({ correo: correo, password: password, tipo_user: "usuario"})
+        const { correo, username, password } = req.body
+        const newUser = await User.create({ correo: correo, username: username, password: password, tipo_user: "usuario"})
 
-        res.status(201).json(newUser)
+        const token = jwt.sign(
+            {id: correo}, 
+            `${process.env.JWT_SECRET}`, 
+            { expiresIn: "3h" }
+        )
+        res.status(201).json(
+            {
+                token,
+                correo: newUser.email,
+                username: newUser.username,
+            }
+        )
     } 
     catch (error) {
+        console.error(error)
         console.error(error.errors[0].message)
         console.error(error.parent.detail)
         console.error(error.parent.code)
@@ -42,7 +54,7 @@ async function loginUser (req, res) {
                     { expiresIn: "3h" }
                 )
                 
-                res.json({ token })
+                res.json({ token, username: user.username })
             }
     } 
     catch (error) {
@@ -120,25 +132,30 @@ async function resetUserPasswordResponse(req, res) {
     }
 }
 
-async function getUserProfile (req, res) { 
-    const { userId } = req.params
-    // TODO: Create "USERNAME" field on User model
-    // and return it to the frontend to be used as a route parameter
+ async function getUserData (req, res) {
+    const { username } = req.body
+    console.log(username)
     try {
-        const user = await User.findByPk(userId)
+        const user = await User.findOne(
+            {
+                where: {username: username}
+            })
 
-        if (user === null) {
+        if(user === null) {
             return res.status(404).json({ message: "User not found" })
         }
 
-        res.json({
+        res.status(200).json({
             email: user.correo,
-            name: user.name,
+            username: user.username,
         })
 
     } catch (error) {
         console.error(error)
-        res.status(500).json({ message: "Server error" })
+        res.status(400).json({
+            error: error.name,
+            message: error.message
+        })
     }
  }
 
@@ -147,5 +164,5 @@ module.exports = {
     loginUser,
     resetUserPasswordRequest,
     resetUserPasswordResponse,
-    getUserProfile,
+    getUserData,
 }

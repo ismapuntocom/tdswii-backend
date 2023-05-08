@@ -14,19 +14,11 @@ const User = sequelize.define('User', {
             isEmail: true
         }
     },
-    nombre: {
-        type: DataTypes.STRING(30),
-        allowNull: true
-    },
-    apellido: {
+    username: {
         type: DataTypes.STRING(30),
         allowNull: true
     },
     ciudad: {
-        type: DataTypes.STRING(30),
-        allowNull: true
-    },
-    pais: {
         type: DataTypes.STRING(30),
         allowNull: true
     },
@@ -41,10 +33,6 @@ const User = sequelize.define('User', {
     password: {
         type: DataTypes.STRING(60),
         allowNull: false
-    },
-    firstLogin: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: true,
     }
 }, { 
     // Trabaja en la tabla "usuario"

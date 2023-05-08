@@ -6,6 +6,6 @@ router.post("/register", userController.registerUser)
 router.post("/login", userController.loginUser)
 router.post("/password-recovery", userController.resetUserPasswordRequest)
 router.post("/reset-password/:token", userController.resetUserPasswordResponse)
-router.get("/profile/:userId", userController.getUserProfile)
+router.post("/getUserData", userController.getUserData)
 
 module.exports = router
