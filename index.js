@@ -3,6 +3,7 @@ const app = express()
 const cors = require("cors")
 const dotenv = require("dotenv")
 const usersRoutes = require("./routes/users")
+const apiRoutes = require('./routes/apiRoutes')
 
 dotenv.config()
 
@@ -11,6 +12,7 @@ const PORT = process.env.PORT || 5000
 app.use(cors())
 app.use(express.json())
 app.use("/users", usersRoutes)
+app.use(apiRoutes)
 
 
 app.listen(PORT, () => {

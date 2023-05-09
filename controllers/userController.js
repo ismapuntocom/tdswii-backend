@@ -178,11 +178,11 @@ async function resetUserPasswordResponse(req, res) {
             user.username = username
         }
 
-        if(ciudad === "" || ciudad === user.ciudad) {
+        if(ciudad !== "" || ciudad !== user.ciudad) {
             user.ciudad = ciudad
         }
 
-        if(biografia === "" || biografia === user.biografia) {
+        if(biografia !== "" || biografia !== user.biografia) {
             user.biografia = biografia
         }
 
