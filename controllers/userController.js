@@ -5,16 +5,23 @@ const transporter = require("../utils/email")
 
 dotenv.config()
 
+function generateUserToken(email) {
+    const token = jwt.sign(
+        {id: email}, 
+        `${process.env.JWT_SECRET}`, 
+        { expiresIn: "6h" }
+    )
+
+    return token
+}
+
 async function registerUser (req, res) {
     try {
         const { correo, username, password } = req.body
         const newUser = await User.create({ correo: correo, username: username, password: password, tipo_user: "usuario"})
 
-        const token = jwt.sign(
-            {id: correo}, 
-            `${process.env.JWT_SECRET}`, 
-            { expiresIn: "3h" }
-        )
+        const token = generateUserToken(correo)
+
         res.status(201).json(
             {
                 token,
@@ -25,9 +32,6 @@ async function registerUser (req, res) {
     } 
     catch (error) {
         console.error(error)
-        console.error(error.errors[0].message)
-        console.error(error.parent.detail)
-        console.error(error.parent.code)
         res.status(400).json({
             error: error.name,
             message: error.message
@@ -48,19 +52,13 @@ async function loginUser (req, res) {
                 res.status(401).json({message: "Email or password incorrect"})
             } else 
             {
-                const token = jwt.sign(
-                    {id: user.correo}, 
-                    `${process.env.JWT_SECRET}`, 
-                    { expiresIn: "3h" }
-                )
+                const token = generateUserToken(correo)
                 
                 res.json({ token, username: user.username })
             }
     } 
     catch (error) {
-        console.error(error.errors[0].message)
-        console.error(error.parent.detail)
-        console.error(error.parent.code)
+        console.error(error)
         res.status(400).json({
             error: error.name,
             message: error.message
@@ -136,10 +134,7 @@ async function resetUserPasswordResponse(req, res) {
     const { username } = req.body
     console.log(username)
     try {
-        const user = await User.findOne(
-            {
-                where: {username: username}
-            })
+        const user = await User.findOne({ where: {username: username} })
 
         if(user === null) {
             return res.status(404).json({ message: "User not found" })
@@ -148,6 +143,8 @@ async function resetUserPasswordResponse(req, res) {
         res.status(200).json({
             email: user.correo,
             username: user.username,
+            ciudad: user.ciudad,
+            biografia: user.biografia
         })
 
     } catch (error) {
@@ -159,10 +156,82 @@ async function resetUserPasswordResponse(req, res) {
     }
  }
 
+ async function updateProfile(req, res) {
+    const { token, username, ciudad, biografia } = req.body
+    try {
+        // Converting token to email
+
+        const decoded = jwt.verify(token, `${process.env.JWT_SECRET}`)
+        const userMail = decoded.id
+
+        // Searching user by email
+
+        const user = await User.findByPk(userMail)
+
+        if(user === null) {
+            return res.status(404).json({ message: "User not found" })
+        }
+
+        // If any value from the body is blank or it's the same as the one the user object holds, don't update it.
+
+        if(username !== "" || username !== user.username) {
+            user.username = username
+        }
+
+        if(ciudad === "" || ciudad === user.ciudad) {
+            user.ciudad = ciudad
+        }
+
+        if(biografia === "" || biografia === user.biografia) {
+            user.biografia = biografia
+        }
+
+        await user.save()
+
+        res.status(200).json({ message: "Profile updated succesfully"})
+        
+
+       
+
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: "Server error" })
+    }
+ }
+
+ async function updatePassword(req, res) {
+    const { token, password } = req.body
+    try {
+        // Converting token to email
+
+        const decoded = jwt.verify(token, `${process.env.JWT_SECRET}`)
+        const userMail = decoded.id
+
+        // Searching user by email
+
+        const user = await User.findByPk(userMail)
+
+        if(user === null) {
+            return res.status(404).json({ message: "User not found" })
+        }
+
+        user.password = password
+        await user.save()
+
+        res.status(200).json({ message: "Password updated succesfully"})
+
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: "Server error" })
+    }
+ }
+
 module.exports = {
     registerUser,
     loginUser,
     resetUserPasswordRequest,
     resetUserPasswordResponse,
     getUserData,
+    updateProfile,
+    updatePassword
 }

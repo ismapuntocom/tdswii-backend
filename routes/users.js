@@ -7,5 +7,7 @@ router.post("/login", userController.loginUser)
 router.post("/password-recovery", userController.resetUserPasswordRequest)
 router.post("/reset-password/:token", userController.resetUserPasswordResponse)
 router.post("/getUserData", userController.getUserData)
+router.post("/update-profile", userController.updateProfile)
+router.post("/update-password", userController.updatePassword)
 
 module.exports = router
