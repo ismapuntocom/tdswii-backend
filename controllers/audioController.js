@@ -1,13 +1,18 @@
 const AudioFile = require("../models/AudioFile")
 const multer = require("multer")
 const path = require("path")
+const jwt = require("jsonwebtoken")
+const Tag = require('../models/Tag');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, path.join(__dirname, "../public/uploads"))
     },
     filename: function (req, file, cb) {
-        cb(null, Data.now() + path.extname(file.originalname))
+        const ext = path.extname(file.originalname)
+        const title = req.params.title
+
+        cb(null, `${title + '-' + Date.now()}${ext}`)
     }
 })
 
@@ -15,12 +20,21 @@ const upload = multer({ storage: storage })
 
 async function uploadAudioFile (req, res) {
     try {
-        const { titulo, id_user_cargas } = req.body
+        const titulo = req.body.titulo
+        const token = req.body.token
+        const tags = JSON.parse(req.body.tags)
+
+        const decoded = jwt.verify(token, `${process.env.JWT_SECRET}`)
+        const userMail = decoded.id
+
         const newAudioFile = await AudioFile.create({ 
             titulo: titulo,  
-            id_user_cargas: id_user_cargas 
+            id_user_cargas: userMail
         })
-        console.log('File metadata saved to database:', audioFile);
+
+        await newAudioFile.setTags(tags)
+
+        console.log('File metadata saved to database:', newAudioFile.dataValues);
         res.status(201).json(newAudioFile)
     } 
     catch (error) {
@@ -33,6 +47,6 @@ async function uploadAudioFile (req, res) {
 }
 
 module.exports = {
+    upload,
     uploadAudioFile,
-    upload
 }
