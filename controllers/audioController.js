@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
 
         cb(null, `${title + '-' + Date.now()}${ext}`)
     }
-})
+})  
 
 const upload = multer({ storage: storage })
 
