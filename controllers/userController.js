@@ -233,9 +233,12 @@ async function resetUserPasswordResponse(req, res) {
             mail,
             message
         } = req.body
+
+        console.log("skdfhkajfsa")
+
         const mailOptions = {
             from: "canorecords00@gmail.com",
-            to: email,
+            to: "canorecords00@gmail.com",
             subject: "Mensaje de Contacto",
             text: `de: ${name}\n desde: ${mail}\n mensaje: ${message}`
         }
